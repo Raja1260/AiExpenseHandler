@@ -17,10 +17,10 @@ const Header = async () => {
         >
           <div className="h-full w-full relative overflow-hidden">
             <Image
-              src="/FinGuard.png"
+              src="/logooo.png"
               alt="Expense logo"
               fill
-              className="object-contain scale-125" // zoomed in
+              // className="object-contain scale-" // zoomed in
             />
           </div>
         </Link>

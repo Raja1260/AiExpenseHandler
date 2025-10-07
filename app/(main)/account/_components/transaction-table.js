@@ -196,12 +196,12 @@ const TransactionTable = ({ transactions }) => {
       {deleteLoading && (
         <BarLoader className="mt-4" width={"100%"} color="#9333ea" />
       )}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          {/* Search */}
+      <div className="flex flex-col md:flex-row gap-4 w-full">
+        {/* Search Input - takes 6/12 on md and above */}
+        <div className="relative w-full md:w-6/12">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            className="pl-8"
+            className="pl-8 w-full"
             placeholder="Search Transaction...."
             value={searchTerm}
             onChange={(e) => {
@@ -210,7 +210,9 @@ const TransactionTable = ({ transactions }) => {
             }}
           />
         </div>
-        <div className="flex gap-2">
+
+        {/* Filters & Buttons - each filter 3/12 on md and above */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-6/12">
           {/* All Type */}
           <Select
             value={filterType}
@@ -218,6 +220,7 @@ const TransactionTable = ({ transactions }) => {
               setFilterType(value);
               setCurrentPage(1);
             }}
+            className="w-full sm:w-1/2 md:w-6/12"
           >
             <SelectTrigger>
               <SelectValue placeholder="All Types" />
@@ -234,34 +237,44 @@ const TransactionTable = ({ transactions }) => {
               setRecurringFilter(value);
               setCurrentPage(1);
             }}
+            className="w-full sm:w-1/2 md:w-6/12"
           >
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger>
               <SelectValue placeholder="All Transaction" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="recurring">Recurring Only</SelectItem>
-              <SelectItem value="non-recurring"> Non-Recurring Only</SelectItem>
+              <SelectItem value="non-recurring">Non-Recurring Only</SelectItem>
             </SelectContent>
           </Select>
+
+          {/* Bulk Delete Button */}
           {selectedIds.length > 0 && (
-            <div>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleBulkDelete}
-              >
-                <Trash className="h4 w-4 mr-2" /> Delete Selected (
-                {selectedIds.length})
-              </Button>
-            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleBulkDelete}
+              className="mt-2 sm:mt-0"
+            >
+              <Trash className="h-4 w-4 mr-2" /> Delete Selected (
+              {selectedIds.length})
+            </Button>
           )}
+
+          {/* Clear Filters Button */}
           {(searchTerm || filterType || recurringFilter) && (
-            <Button variant="outline" size="icon" onClick={handleClearFilter}>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleClearFilter}
+              className="mt-2 sm:mt-0"
+            >
               <X className="h-4 w-5" />
             </Button>
           )}
         </div>
       </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -270,8 +283,7 @@ const TransactionTable = ({ transactions }) => {
                 {" "}
                 <Checkbox
                   checked={
-                    selectedIds.length ===
-                      paginatedTransactions.length &&
+                    selectedIds.length === paginatedTransactions.length &&
                     paginatedTransactions.length > 0
                   }
                   onCheckedChange={handleSelectAll}
@@ -439,7 +451,7 @@ const TransactionTable = ({ transactions }) => {
       </div>
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2  h-12">
           <Button
             variant="outline"
             size="icon"
