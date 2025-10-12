@@ -275,12 +275,12 @@ const TransactionTable = ({ transactions }) => {
         </div>
       </div>
 
-      <div className="rounded-md border">
+     <div className="w-full overflow-x-auto rounded-md border">
+      <div className="min-w-[900px]"> {/* force horizontal scroll on small devices */}
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]">
-                {" "}
+              <TableHead className="w-[40px]">
                 <Checkbox
                   checked={
                     selectedIds.length === paginatedTransactions.length &&
@@ -289,59 +289,72 @@ const TransactionTable = ({ transactions }) => {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
+
+              {/* Date */}
               <TableHead
-                className="cursor-pointer"
+                className="cursor-pointer whitespace-nowrap"
                 onClick={() => handleSort("date")}
               >
                 <div className="flex items-center">
-                  Date :{" "}
+                  Date
                   {sortConfig.field === "date" &&
                   sortConfig.direction === "asc" ? (
                     <ChevronUp className="ml-1 h-4 w-4" />
                   ) : (
                     <ChevronDown className="ml-1 h-4 w-4" />
-                  )}{" "}
+                  )}
                 </div>
               </TableHead>
-              <TableHead className="">Description</TableHead>
+
+              {/* Description */}
+              <TableHead>Description</TableHead>
+
+              {/* Category */}
               <TableHead
-                className="cursor-pointer"
+                className="cursor-pointer whitespace-nowrap"
                 onClick={() => handleSort("category")}
               >
                 <div className="flex items-center">
-                  Category :{" "}
+                  Category
                   {sortConfig.field === "category" &&
                   sortConfig.direction === "asc" ? (
                     <ChevronUp className="ml-1 h-4 w-4" />
                   ) : (
                     <ChevronDown className="ml-1 h-4 w-4" />
-                  )}{" "}
+                  )}
                 </div>
               </TableHead>
+
+              {/* Amount */}
               <TableHead
-                className="cursor-pointer"
+                className="cursor-pointer text-right whitespace-nowrap"
                 onClick={() => handleSort("amount")}
               >
                 <div className="flex items-center justify-end">
-                  Amount :{" "}
+                  Amount
                   {sortConfig.field === "amount" &&
                   sortConfig.direction === "asc" ? (
                     <ChevronUp className="ml-1 h-4 w-4" />
                   ) : (
                     <ChevronDown className="ml-1 h-4 w-4" />
-                  )}{" "}
+                  )}
                 </div>
               </TableHead>
-              <TableHead className="">Recurring</TableHead>
-              <TableHead className="w-50px" />
+
+              {/* Recurring */}
+              <TableHead className="whitespace-nowrap">Recurring</TableHead>
+
+              {/* Actions */}
+              <TableHead className="w-[50px]" />
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {paginatedTransactions.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="text-center text-muted-foreground"
+                  className="text-center text-muted-foreground py-6"
                 >
                   No Transaction Found
                 </TableCell>
@@ -349,46 +362,56 @@ const TransactionTable = ({ transactions }) => {
             ) : (
               paginatedTransactions.map((transaction) => (
                 <TableRow key={transaction.id}>
+                  {/* Select */}
                   <TableCell>
                     <Checkbox
                       checked={selectedIds.includes(transaction.id)}
                       onCheckedChange={() => handleSelect(transaction.id)}
                     />
                   </TableCell>
-                  <TableCell>
+
+                  {/* Date */}
+                  <TableCell className="whitespace-nowrap">
                     {format(new Date(transaction.date), "PP")}
                   </TableCell>
-                  <TableCell> {transaction.description}</TableCell>
+
+                  {/* Description */}
+                  <TableCell>{transaction.description}</TableCell>
+
+                  {/* Category */}
                   <TableCell className="capitalize">
                     <span
                       style={{
                         background: categoryColors[transaction.category],
                       }}
-                      className="px-2 py-1 rounded text-white text-sm"
+                      className="px-2 py-1 rounded text-white text-xs sm:text-sm whitespace-nowrap"
                     >
                       {transaction.category}
                     </span>
                   </TableCell>
+
+                  {/* Amount */}
                   <TableCell
                     style={{
                       color: transaction.type === "EXPENSE" ? "red" : "green",
                     }}
-                    className="text-right font-medium"
+                    className="text-right font-medium whitespace-nowrap"
                   >
                     {transaction.type === "EXPENSE" ? "-" : "+"}
                     {transaction.amount.toFixed(2)}
                   </TableCell>
+
+                  {/* Recurring */}
                   <TableCell>
-                    {" "}
-                    {transaction.isRecurring === true ? (
+                    {transaction.isRecurring ? (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <Badge
                               variant="outline"
-                              className="gap-1 bg-purple-100 text-purple-700 hover:bg-purple-200"
+                              className="gap-1 bg-purple-100 text-purple-700 hover:bg-purple-200 whitespace-nowrap"
                             >
-                              <RefreshCw className="h-3 w-3 " />{" "}
+                              <RefreshCw className="h-3 w-3" />
                               {
                                 RECURRING_INTERVALS[
                                   transaction.recurringInterval
@@ -398,7 +421,7 @@ const TransactionTable = ({ transactions }) => {
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="text-sm">
-                              <div className="font-medium">Next Date : </div>
+                              <div className="font-medium">Next Date:</div>
                               <div>
                                 {format(
                                   new Date(transaction.nextRecurringDate),
@@ -410,25 +433,27 @@ const TransactionTable = ({ transactions }) => {
                         </Tooltip>
                       </TooltipProvider>
                     ) : (
-                      <Badge variant="outline" className="gap-1">
+                      <Badge variant="outline" className="gap-1 whitespace-nowrap">
                         <Clock className="h-3 w-3" /> One-Time
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="">
+
+                  {/* Actions */}
+                  <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button className="h-8 w-8 p-0 " variant="ghost">
+                        <Button className="h-8 w-8 p-0" variant="ghost">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <DropdownMenuLabel
-                          onClick={() => {
+                          onClick={() =>
                             router.push(
                               `/transaction/create?edit=${transaction.id}`
-                            );
-                          }}
+                            )
+                          }
                           className="cursor-pointer"
                         >
                           Edit
@@ -449,6 +474,7 @@ const TransactionTable = ({ transactions }) => {
           </TableBody>
         </Table>
       </div>
+    </div>
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2  h-12">
