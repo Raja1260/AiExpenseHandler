@@ -15,10 +15,10 @@ const AccountPage = async ({ params }) => {
     <div className="space-y-8 px-5 mt-40">
       <div className="flex gap-4 items-end justify-between">
         <div>
-          <h1 className="text-5xl sm:text-6xl font-bold tracking-tight gradient-title capitalize">
+          <h6 className="text-4xl sm:text-5xl font-bold tracking-tight gradient-title capitalize">
             {account.name}
-          </h1>
-          <p className="text-muted-foreground">
+          </h6>
+          <p className="text-muted-foreground text-slate-600">
             {account.type.charAt(0) + account.type.slice(1).toLowerCase()}{" "}
             Account
           </p>
@@ -27,7 +27,7 @@ const AccountPage = async ({ params }) => {
           <div className="text-xl sm:text-2xl font-bold">
             ₹{parseFloat(account.balance).toFixed(2)}
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground text-slate-600">
             {account._count.transactions} Transactions
           </p>
         </div>
