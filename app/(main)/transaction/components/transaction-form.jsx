@@ -255,6 +255,8 @@ const TransactionForm = ({
         <Switch
           onCheckedChange={(checked) => setValue("isRecurring", checked)}
           checked={isRecurring}
+         className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-slate-300"
+
         />
         {errors.isDefault && <p>{errors.isDefault.message}</p>}
       </div>
