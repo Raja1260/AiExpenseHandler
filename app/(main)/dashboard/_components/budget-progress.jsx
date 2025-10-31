@@ -58,7 +58,7 @@ const BudgetProgress = ({ initialBudget, currentExpenses }) => {
   }, [error]);
 
   return (
-    <Card>
+    <Card  className=" bg-gray-100">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 ">
         <div className="flex-1">
           <CardTitle>Monthly Budget (Default Account)</CardTitle>
@@ -118,7 +118,6 @@ const BudgetProgress = ({ initialBudget, currentExpenses }) => {
             <Progress
               value={percentUsed}
               extraStyles={`${percentUsed >= 90 ? "bg-red-500" : percentUsed >= 75 ? "bg-yellow-500" : "bg-green-600"}`}
-              // extraStyles={"bg-blue-400"}
             />
             <p className="text-sm text-muted-foreground text-right">
               {percentUsed.toFixed(1)}% Used

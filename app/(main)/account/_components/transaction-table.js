@@ -263,18 +263,34 @@ const TransactionTable = ({ transactions }) => {
 
           {/* Clear Filters Button */}
           {(searchTerm || filterType || recurringFilter) && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleClearFilter}
-              className="mt-2 sm:mt-0"
-            >
-              <X className="h-4 w-5" />
-            </Button>
+         <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleClearFilter}
+            className="mt-2 sm:mt-0 text-slate-500 hover:bg-slate-200 hover:text-slate-800 dark:hover:bg-slate-800 dark:text-slate-300 rounded-full transition-all"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </TooltipTrigger>
+
+        {/* Tooltip content with black background */}
+        <TooltipContent
+          side="bottom"
+          className="bg-black text-white text-xs rounded-md px-2 py-1 shadow-lg"
+        >
+          Reset all filters
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
           )}
         </div>
       </div>
 
+
+ {/* Table */}
      <div className="w-full overflow-x-auto rounded-md border">
       <div className="min-w-[900px]"> {/* force horizontal scroll on small devices */}
         <Table>
@@ -433,7 +449,7 @@ const TransactionTable = ({ transactions }) => {
                         </Tooltip>
                       </TooltipProvider>
                     ) : (
-                      <Badge variant="outline" className="gap-1 whitespace-nowrap">
+                      <Badge variant="outline" className="gap-2 whitespace-nowrap bg-blue-100">
                         <Clock className="h-3 w-3" /> One-Time
                       </Badge>
                     )}
@@ -475,6 +491,8 @@ const TransactionTable = ({ transactions }) => {
         </Table>
       </div>
     </div>
+
+
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2  h-12">

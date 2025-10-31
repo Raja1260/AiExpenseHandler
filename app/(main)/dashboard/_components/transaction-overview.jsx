@@ -75,19 +75,21 @@ const TransactionOverview = ({ accounts, transactions }) => {
   //   console.log("recentTransaction", recentTransaction);
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <Card>
-        <CardHeader className=" flex items-center justify-between pb-4 space-y-0 flex-row">
-          <CardTitle className="text-base font-normal">
+      {/* Recent Transactions */}
+      <Card className="border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow rounded-2xl">
+        <CardHeader className="flex items-center justify-between pb-4 flex-row">
+          <CardTitle className="text-base font-semibold text-slate-700 dark:text-slate-200 tracking-tight">
             Recent Transactions
           </CardTitle>
+
           <Select
             value={selectedAccountId}
             onValueChange={setSelectedAccountId}
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[160px] rounded-lg border-slate-300 dark:border-slate-600">
               <SelectValue placeholder="Select Account" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-lg shadow-lg">
               {accounts.map((account) => (
                 <SelectItem value={account.id} key={account.id}>
                   {account.name}
@@ -96,6 +98,7 @@ const TransactionOverview = ({ accounts, transactions }) => {
             </SelectContent>
           </Select>
         </CardHeader>
+
         <CardContent>
           <div className="space-y-4">
             {recentTransaction.length === 0 ? (
@@ -106,32 +109,31 @@ const TransactionOverview = ({ accounts, transactions }) => {
               recentTransaction.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between rounded-lg px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
+                    <p className="text-sm font-medium">
                       {transaction.description || "Untitled Transaction"}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {format(new Date(transaction.date), "PP")}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={cn(
-                        "flex items-center",
-                        transaction.type === "EXPENSE"
-                          ? "text-red-500"
-                          : "text-green-500"
-                      )}
-                    >
-                      {transaction.type === "EXPENSE" ? (
-                        <ArrowDownRight className="mr-1 h-4 w-4" />
-                      ) : (
-                        <ArrowUpRight className="mr-1 h-4 w-4" />
-                      )}
-                      ₹{transaction.amount.toFixed(2)}
-                    </div>
+
+                  <div
+                    className={cn(
+                      "flex items-center font-medium",
+                      transaction.type === "EXPENSE"
+                        ? "text-red-500"
+                        : "text-green-500"
+                    )}
+                  >
+                    {transaction.type === "EXPENSE" ? (
+                      <ArrowDownRight className="mr-1 h-5 w-5" />
+                    ) : (
+                      <ArrowUpRight className="mr-1 h-5 w-5" />
+                    )}
+                    ₹{transaction.amount.toFixed(2)}
                   </div>
                 </div>
               ))
@@ -140,13 +142,17 @@ const TransactionOverview = ({ accounts, transactions }) => {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Monthly Expense Breakdown */}
+      <Card className="border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-base font-normal">
+          <CardTitle className="text-base font-semibold text-slate-700 dark:text-slate-200 tracking-tight">
             Monthly Expense Breakdown
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0 pb-5">
+
+        <CardContent className="pb-5">
+          {" "}
+          {/* 👈 reverted padding back */}
           {pieChartData.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">
               No expenses this month
@@ -160,7 +166,6 @@ const TransactionOverview = ({ accounts, transactions }) => {
                     cx="50%"
                     cy="50%"
                     outerRadius={80}
-                    fill="#8884d8"
                     dataKey="value"
                     label={({ name, value }) => `${name}: ₹${value.toFixed(2)}`}
                   >
@@ -168,6 +173,7 @@ const TransactionOverview = ({ accounts, transactions }) => {
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}
+                        className="transition-all duration-300 hover:opacity-80"
                       />
                     ))}
                   </Pie>

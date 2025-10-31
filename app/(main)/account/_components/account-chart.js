@@ -39,7 +39,7 @@ const DATE_RANGES = {
 };
 
 const AccountChartPage = ({ transactions }) => {
-  const [dateRange, setDateRange] = useState("7D");
+  const [dateRange, setDateRange] = useState("3M");
 
   const filteredData = useMemo(() => {
     const range = DATE_RANGES[dateRange];
