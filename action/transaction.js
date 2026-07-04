@@ -69,6 +69,10 @@ export async function createTransaction(data) {
     const balanceChange = data.type === "EXPENSE" ? -data.amount : data.amount;
     const newBalance = account.balance.toNumber() + balanceChange;
 
+    if (data.type === "EXPENSE" && newBalance < 0) {
+      throw new Error("Insufficient balance in the selected account for this expense.");
+    }
+
     // Create transaction and update account balance
     const transaction = await db.$transaction(async (tx) => {
       const newTransaction = await tx.transaction.create({
@@ -156,6 +160,13 @@ export async function updateTransaction(id, data) {
 
     const netBalanceChange = newBalanceChange - oldBalanceChange;
 
+    const newBalance =
+      originalTransaction.account.balance.toNumber() + netBalanceChange;
+
+    if (data.type === "EXPENSE" && newBalance < 0) {
+      throw new Error("Insufficient balance in the selected account for this expense.");
+    }
+
     // Update transaction and account balance in a transaction
     const transaction = await db.$transaction(async (tx) => {
       const updated = await tx.transaction.update({
@@ -230,7 +241,7 @@ export async function getUserTransactions(query = {}) {
 // Scan Receipt
 export async function scanReceipt(file) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Convert File to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();

@@ -63,7 +63,7 @@ const TransactionForm = ({
             type: "EXPENSE",
             amount: "",
             description: "",
-            accountId: accounts.find((ac) => ac.isDefault).id,
+            accountId: accounts.find((ac) => ac.isDefault)?.id,
             date: new Date(),
             isRecurring: false,
           },
@@ -77,6 +77,7 @@ const TransactionForm = ({
   const type = watch("type");
   const isRecurring = watch("isRecurring");
   const date = watch("date");
+  const category = watch("category");
 
   const filterCategories = categories.filter(
     (category) => category.type === type
@@ -85,6 +86,30 @@ const TransactionForm = ({
   const router = useRouter();
   const onSubmit = async (data) => {
     const formData = { ...data, amount: parseFloat(data.amount) };
+
+    if (formData.type === "EXPENSE") {
+      const selectedAccount = accounts.find(
+        (account) => account.id === formData.accountId
+      );
+
+      if (selectedAccount) {
+        let availableBalance = selectedAccount.balance;
+        if (editMode && initialData && initialData.accountId === formData.accountId) {
+          availableBalance +=
+            initialData.type === "EXPENSE"
+              ? initialData.amount
+              : -initialData.amount;
+        }
+
+        if (formData.amount > availableBalance) {
+          toast.error(
+            "Insufficient balance in the selected account for this expense."
+          );
+          return;
+        }
+      }
+    }
+
     if (editMode) {
       transactionFn(editId, formData);
     } else {
@@ -107,13 +132,20 @@ const TransactionForm = ({
   const handleScanComplete = (scannedData) => {
     console.log(scannedData, "scannedData");
     if (scannedData) {
-      setValue("amount", scannedData.amount.toString());
-      setValue("date", new Date(scannedData.date));
+      setValue("amount", scannedData.amount.toString(), { shouldValidate: true });
+      setValue("date", new Date(scannedData.date), { shouldValidate: true });
       if (scannedData.description) {
-        setValue("description", scannedData.description);
+        setValue("description", scannedData.description, { shouldValidate: true });
       }
       if (scannedData.category) {
-        setValue("category", scannedData.category);
+        const matchedCategory = categories.find(
+          (category) =>
+            category.id.toLowerCase() === scannedData.category.toLowerCase() ||
+            category.name.toLowerCase() === scannedData.category.toLowerCase()
+        );
+        setValue("category", matchedCategory?.id || scannedData.category, {
+          shouldValidate: true,
+        });
       }
     }
   };
@@ -130,7 +162,9 @@ const TransactionForm = ({
       <div className="space-y-2">
         <label className="text-sm font-medium">Type</label>
         <Select
-          onValueChange={(value) => setValue("type", value)}
+          onValueChange={(value) =>
+            setValue("type", value, { shouldValidate: true })
+          }
           defaultValue={type}
         >
           <SelectTrigger>
@@ -161,7 +195,9 @@ const TransactionForm = ({
         <div className="space-y-2">
           <label className="text-sm font-medium">Account</label>
           <Select
-            onValueChange={(value) => setValue("accountId", value)}
+            onValueChange={(value) =>
+              setValue("accountId", value, { shouldValidate: true })
+            }
             defaultValue={getValues("accountId")}
           >
             <SelectTrigger>
@@ -192,8 +228,10 @@ const TransactionForm = ({
       <div className="space-y-2">
         <label className="text-sm font-medium">Category</label>
         <Select
-          onValueChange={(value) => setValue("category", value)}
-          defaultValue={getValues("category")}
+          onValueChange={(value) =>
+            setValue("category", value, { shouldValidate: true })
+          }
+          value={category}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select Category" />
@@ -264,7 +302,9 @@ const TransactionForm = ({
         <div className="space-y-2">
           <label className="text-sm font-medium">Recurring Interval</label>
           <Select
-            onValueChange={(value) => setValue("recurringInterval", value)}
+            onValueChange={(value) =>
+              setValue("recurringInterval", value, { shouldValidate: true })
+            }
             defaultValue={getValues("recurringInterval")}
           >
             <SelectTrigger>
