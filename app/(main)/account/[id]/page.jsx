@@ -6,7 +6,8 @@ import { BarLoader } from "react-spinners";
 import AccountChartPage from "../_components/account-chart";
 
 const AccountPage = async ({ params }) => {
-  const accountData = await getAccountWithTransactions(params.id);
+  const { id } = await params;
+  const accountData = await getAccountWithTransactions(id);
   if (!accountData) {
     notFound();
   }

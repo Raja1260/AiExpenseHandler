@@ -184,12 +184,13 @@ const TransactionForm = ({
           <label className="text-sm font-medium">Amount</label>
           <Input
             type="number"
-            step="0.01 "
+            step="0.01"
+            min="0.01"
             placeholder="0.00"
             {...register("amount")}
           />
-          {errors.type && (
-            <p className="text-sm text-red-500">{errors.type.message}</p>
+          {errors.amount && (
+            <p className="text-sm text-red-500">{errors.amount.message}</p>
           )}
         </div>
         <div className="space-y-2">

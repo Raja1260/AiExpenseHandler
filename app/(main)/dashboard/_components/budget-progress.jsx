@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, Pencil, X } from "lucide-react";
+import { Check, Pencil, Wallet, X } from "lucide-react";
 import useFetch from "@/hooks/use-fetch";
 import { updateBudget } from "@/action/budget";
 import { toast } from "sonner";
@@ -22,8 +22,19 @@ const BudgetProgress = ({ initialBudget, currentExpenses }) => {
   const [newBudget, setNewBudget] = useState(
     initialBudget?.amount?.toString() || ""
   );
-  const percentUsed = initialBudget
-    ? (currentExpenses / initialBudget.amount) * 100
+
+  // Expenses should never be negative (a mis-entered transaction amount
+  // can otherwise push the sum below zero) — clamp defensively for display.
+  const safeExpenses = Math.max(0, currentExpenses || 0);
+  const rawPercentUsed =
+    initialBudget && initialBudget.amount > 0
+      ? (safeExpenses / initialBudget.amount) * 100
+      : 0;
+  const percentUsed = Math.max(0, rawPercentUsed);
+  const progressValue = Math.min(100, percentUsed);
+  const isOverBudget = percentUsed > 100;
+  const remaining = initialBudget
+    ? initialBudget.amount - safeExpenses
     : 0;
   const {
     loading: isLoading,
@@ -58,57 +69,67 @@ const BudgetProgress = ({ initialBudget, currentExpenses }) => {
   }, [error]);
 
   return (
-    <Card  className=" bg-gray-100">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 ">
-        <div className="flex-1">
-          <CardTitle>Monthly Budget (Default Account)</CardTitle>
-          <div className="flex items-center gap-2 mt-1">
-            {isEditing ? (
-              <div className="flex items-center gap-2">
-                <Input
-                  type={"number"}
-                  value={newBudget}
-                  onChange={(e) => setNewBudget(e.target.value)}
-                  className="w-32"
-                  placeholder="Enter Amount"
-                  autoFocus
-                  disabled={isLoading}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleUpdateBudget}
-                  disabled={isLoading}
-                >
-                  <Check className="h-4 w-4 text-green-500" />
-                </Button>
+    <Card className="overflow-hidden border border-slate-200 bg-gradient-to-br from-white to-slate-50/80 shadow-sm transition-shadow hover:shadow-md">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div className="flex flex-1 items-start gap-3">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 shadow-inner">
+            <Wallet className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <CardTitle className="text-sm font-semibold text-slate-800">
+              Monthly Budget{" "}
+              <span className="font-normal text-slate-400">
+                (Default Account)
+              </span>
+            </CardTitle>
+            <div className="mt-1 flex items-center gap-2">
+              {isEditing ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type={"number"}
+                    value={newBudget}
+                    onChange={(e) => setNewBudget(e.target.value)}
+                    className="w-32"
+                    placeholder="Enter Amount"
+                    autoFocus
+                    disabled={isLoading}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleUpdateBudget}
+                    disabled={isLoading}
+                  >
+                    <Check className="h-4 w-4 text-green-500" />
+                  </Button>
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleCancel}
-                  disabled={isLoading}
-                >
-                  <X className="h-4 w-4 text-red-500" />
-                </Button>
-              </div>
-            ) : (
-              <>
-                <CardDescription>
-                  {initialBudget
-                    ? `₹${currentExpenses.toFixed(2)} of ₹${initialBudget.amount.toFixed(2)} Spent`
-                    : "No Budget Set"}{" "}
-                </CardDescription>
-                <Button
-                  className="h-6 w-6"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsEditing(true)}
-                >
-                  <Pencil className="h-3 w-3 text-blue-600" />
-                </Button>
-              </>
-            )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleCancel}
+                    disabled={isLoading}
+                  >
+                    <X className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <CardDescription className="text-slate-500">
+                    {initialBudget
+                      ? `₹${safeExpenses.toFixed(2)} of ₹${initialBudget.amount.toFixed(2)} spent`
+                      : "No Budget Set"}
+                  </CardDescription>
+                  <Button
+                    className="h-6 w-6"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <Pencil className="h-3 w-3 text-blue-600" />
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -116,12 +137,31 @@ const BudgetProgress = ({ initialBudget, currentExpenses }) => {
         {initialBudget && (
           <div className="space-y-2">
             <Progress
-              value={percentUsed}
-              extraStyles={`${percentUsed >= 90 ? "bg-red-500" : percentUsed >= 75 ? "bg-yellow-500" : "bg-green-500"}`}
+              value={progressValue}
+              extraStyles={
+                isOverBudget
+                  ? "bg-red-500"
+                  : percentUsed >= 75
+                    ? "bg-yellow-500"
+                    : "bg-green-500"
+              }
             />
-            <p className="text-sm text-muted-foreground text-right">
-              {percentUsed.toFixed(1)}% Used
-            </p>
+            <div className="flex items-center justify-between text-sm">
+              <span
+                className={
+                  isOverBudget
+                    ? "font-medium text-red-500"
+                    : "text-muted-foreground"
+                }
+              >
+                {isOverBudget
+                  ? `Over budget by ₹${Math.abs(remaining).toFixed(2)}`
+                  : `₹${remaining.toFixed(2)} remaining`}
+              </span>
+              <span className="text-muted-foreground">
+                {percentUsed.toFixed(1)}% used
+              </span>
+            </div>
           </div>
         )}
       </CardContent>

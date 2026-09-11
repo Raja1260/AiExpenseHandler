@@ -22,9 +22,20 @@ export default function RootLayout({ children }) {
           <Toaster richColors/>
 
           {/* footer */}
-          <footer className="bg-gray-100 py-8">
-            <div className="container mx-auto px-4 text-center  text-slate-700">
-              <p>Made By Raja Yadav</p>
+          <footer className="border-t border-slate-200 bg-gradient-to-b from-white to-slate-50 py-4">
+            <div className="container mx-auto flex flex-col items-center gap-2 px-4 text-center">
+              {/* <p className="flex items-center gap-1.5 text-sm text-slate-500">
+               Made By
+                <span className="font-semibold text-slate-700">
+                  Raja Yadav
+                </span>
+              </p> */}
+              <p className="text-xs text-slate-400">
+            Made By   <span className="font-semibold text-slate-700">
+                  Raja Yadav
+                </span> @ AI Expense Handler. All rights
+                reserved.
+              </p>
             </div>
           </footer>
         </body>

@@ -47,7 +47,63 @@ export async function updateDefaultAccount(accountId) {
     });
 
     revalidatePath("/dashboard");
-    return { success: true, data: serializeTransaction(account) };
+    return { success: true, data: serializeDecimal(account) };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteAccount(accountId) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    const account = await db.account.findUnique({
+      where: {
+        id: accountId,
+        userId: user.id,
+      },
+    });
+
+    if (!account) throw new Error("Account not found");
+
+    const accountCount = await db.account.count({
+      where: { userId: user.id },
+    });
+
+    if (accountCount <= 1) {
+      throw new Error("You need at least one account");
+    }
+
+    // Deleting the account cascades to its transactions (see schema)
+    await db.account.delete({
+      where: {
+        id: accountId,
+        userId: user.id,
+      },
+    });
+
+    if (account.isDefault) {
+      const nextAccount = await db.account.findFirst({
+        where: { userId: user.id },
+        orderBy: { createdAt: "asc" },
+      });
+      if (nextAccount) {
+        await db.account.update({
+          where: { id: nextAccount.id },
+          data: { isDefault: true },
+        });
+      }
+    }
+
+    revalidatePath("/dashboard");
+    return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
   }
